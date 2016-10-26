@@ -1,10 +1,10 @@
-def print_multiple_digits(numbers, weight):  # 2 ints on input
-    _numbers = map(int, str(numbers))
-    for _line in range(0, 5):
+def print_multiple_digits(weight, numbers):  # 2 strs on input
+
+    _numbers = map(int, str(numbers))  # int is here
+    for _line in range(0, 5):  # int is here
         for number in _numbers:  # make it as a list [1,2,3,4,5]
-            _number = number * 10 + _line
-            print_line(_number)
-        print "\r"
+            print_line(number * 10 + _line)  # get the view as 10, 11, 12 etc.
+        print "\r"  # adding the CR
 
 
 def print_line(key):  # 10 -> 0 -> 0000
@@ -51,10 +51,12 @@ lcd = {10: '0', 11: '1', 12: '0', 13: '1', 14: '0',
        }
 
 
-with open("test_LCD_display.conf") as f:
-    for line in f:
-        data = f.readlines()
-        print data
+lines = [line.rstrip('\n') for line in open('app.conf')]
+for _l in lines:
+    _w = _l.split()
+    if _w[0] == '0':
+        break
+    print_multiple_digits(_w[0], _w[1])
 
 # 2 12345
 # 3 67890
