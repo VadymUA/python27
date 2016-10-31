@@ -1,6 +1,5 @@
-class Lcd():
+class Map():
     def __init__(self):
-        self.item = {}
         self.map = {1: ['000', '001', '000', '001', '000'],
                     2: ['020', '001', '020', '100', '020'],
                     3: ['020', '001', '020', '001', '020'],
@@ -12,11 +11,15 @@ class Lcd():
                     9: ['020', '101', '020', '001', '020'],
                     0: ['020', '101', '000', '101', '020']}
 
-    def create(self):  # tuple as input i.e. ('2', '12345')
+class Lcd():
+    def __init__(self):
+        self.target = {}
+
+    def create(self, map):  # tuple as input i.e. ('2', '12345')
         """Create the target array for further printing"""
         for key in numbers:
-            self.item[int(key)] = [self.insert_str(one, s) for one in self.insert_list(self.map[int(key)])]
-        # print self.item  # for debug only
+            self.target[int(key)] = [self.insert_str(one, s) for one in self.insert_list(map[int(key)])]
+        #            print key, self.target[int(key)]  # for debug only
 
     def print_it(self):
         """Return printed image from mapped values, i.e. '0220' -> ' -- '
@@ -25,9 +28,9 @@ class Lcd():
             "|" - 1
             "-" - 2
         """
-        for _column in range(2 * int(s) + 3):
-            for _raw in self.item.keys():
-                print (self.transcode(self.item[_raw][_column])),
+        for column in range(2 * int(s) + 3):
+            for key in numbers:
+                print (self.transcode(self.target[int(key)][column])),
             print "\r"
 
     def transcode(self, word):
@@ -39,35 +42,39 @@ class Lcd():
 
     def insert_str(self, source_str, s):
         """Return a string with inserted a multiplied element [1] by s, i.g.'020' -> '02220'"""
-        _delta = ''.join([source_str[1] for _x in range(1, int(s))])
-        return source_str[:1] + _delta + source_str[1:]
+        delta = ''.join([source_str[1] for _x in range(1, int(s))])
+        return source_str[:1] + delta + source_str[1:]
 
     def insert_list(self, list):
         """Return a list with inserted multiplied elements by s. Begins to add elements to the list from end!"""
-        for _x in range(1, int(s)):
+        for x in range(1, int(s)):
             list.insert(3, list[3])
-        for _x in range(1, int(s)):
+        for x in range(1, int(s)):
             list.insert(1, list[1])
         return list
 
 
 class Config():
     def __init__(self):
-        return None
+        self.cfile = "app.conf"
 
     def read(self):
-        return [line.rstrip('\n') for line in open('app.conf')]
+        return [line.rstrip('\n') for line in open(self.cfile)]
 
 
 def main():
     c = Config()
-    config = c.read()
+    m = Map()
+    try:
+        config = c.read()
+    except:
+        raise IOError("Config file '%s' is absent" % c.cfile)
     global s, numbers
     for line in config:  # process each line from config
         (s, numbers) = line.split()  # get 2 separate parameters, they're global, both
-        if s is not '0':
+        if s is not '0':  # stops at '0'
             item = Lcd()
-            item.create()  # fill out just created object
+            item.create(m.map)  # fill out just created object
             item.print_it()  # print it
 
 
