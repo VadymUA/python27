@@ -14,18 +14,15 @@ class Item():
 
     def create(self, line):  # tuple as input i.e. ('2', '12345')
         """Create the target array for further printing"""
-        (_s, _numbers) = get_params(line)
-        for key in _numbers:
-            print self.dict[int(key)]
+        for key in numbers:
+            self.item[key] = [one for one in self.dict[int(key)]]
+
+        print self.item
+
 
 def read_config():
     """Returns a list of all params from config file"""
     return [line.rstrip('\n') for line in open('app.conf')]
-
-
-def get_params(line):
-    """Returns weight and numbers as separate strings in tuple"""
-    return line.split()
 
 
 def main():
@@ -36,8 +33,9 @@ def main():
     """
 
     config = read_config()
+    global s, numbers
     for line in config:
-        (s, numbers) = get_params(line)
+        (s, numbers) = line.split()
         if s is not '0':
             item = Item()
             item.create(line)  # fill out just created object
