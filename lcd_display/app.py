@@ -11,46 +11,50 @@ class Map():
                     9: ['020', '101', '020', '001', '020'],
                     0: ['020', '101', '000', '101', '020']}
 
-class Lcd():
-    def __init__(self):
-        self.target = {}
 
-    def create(self, map):  # tuple as input i.e. ('2', '12345')
+class Main():
+    def __init__(self, s, numbers):
+        self.target = {}  # a target array
+        self.transmap = {'0': ' ', '1': '|', '2': '-'}  # a translation map
+        self.s = int(s)  # size of symbol; 's' is int here!
+        self.numbers = numbers  # string with input numbers for printing
+
+    def create(self, map):
         """Create the target array for further printing"""
-        for key in numbers:
-            self.target[int(key)] = [self.insert_str(one, s) for one in self.insert_list(map[int(key)])]
-        #            print key, self.target[int(key)]  # for debug only
+        for key in self.numbers:
+            if int(key) not in self.target:  # trying to avoid replacing of already existing numbers to array
+                self.target[int(key)] = [self.insert_str(one) for one in self.insert_list(map[int(key)])]
+        return self.target
 
-    def print_it(self):
-        """Return printed image from mapped values, i.e. '0220' -> ' -- '
-        Print map is:
-            " " - 0
-            "|" - 1
-            "-" - 2
-        """
-        for column in range(2 * int(s) + 3):
-            for key in numbers:
-                print (self.transcode(self.target[int(key)][column])),
+    def print_it(self, array):
+        """Return printed image from mapped values, i.e. '0220' -> ' -- '"""
+        for column in range(2 * self.s + 3):
+            for key in self.numbers:
+                print (self.transcode(array[int(key)][column])),
             print "\r"
 
     def transcode(self, word):
         """Return a word in the ready-to-print format"""
-        word = word.replace("0", " ")
-        word = word.replace("1", "|")
-        word = word.replace("2", "-")
+        for k, v in self.transmap.iteritems():
+            word = word.replace(k, v)
         return word
 
-    def insert_str(self, source_str, s):
+    def insert_str(self, string):
         """Return a string with inserted a multiplied element [1] by s, i.g.'020' -> '02220'"""
-        delta = ''.join([source_str[1] for _x in range(1, int(s))])
-        return source_str[:1] + delta + source_str[1:]
+        delta = ''.join([string[1] for _x in range(1, self.s)])
+        return string[:1] + delta + string[1:]
 
-    def insert_list(self, list):
+    def insert_list(self, source_list):
         """Return a list with inserted multiplied elements by s. Begins to add elements to the list from end!"""
-        for x in range(1, int(s)):
-            list.insert(3, list[3])
-        for x in range(1, int(s)):
-            list.insert(1, list[1])
+        dest_list = source_list[:]  # clone existing string for further manipulations
+        for pos in [3, 1]:
+            self.duplicate_str(pos, dest_list)
+        return dest_list
+
+    def duplicate_str(self, param, list):
+        """Return the modified list with inserted duplicates, multiplied by s"""
+        for counter in range(1, self.s):
+            list.insert(param, list[param])
         return list
 
 
@@ -59,24 +63,32 @@ class Config():
         self.cfile = "app.conf"
 
     def read(self):
+        """Return a list with parameters from config file"""
         return [line.rstrip('\n') for line in open(self.cfile)]
 
 
-def main():
+def app():
     c = Config()
     m = Map()
     try:
         config = c.read()
     except:
         raise IOError("Config file '%s' is absent" % c.cfile)
-    global s, numbers
-    for line in config:  # process each line from config
+
+    for line in config:  # take each line from config file
         (s, numbers) = line.split()  # get 2 separate parameters, they're global, both
-        if s is not '0':  # stops at '0'
-            item = Lcd()
-            item.create(m.map)  # fill out just created object
-            item.print_it()  # print it
+        if s is not '0':  # proceed it until not equal '0'; 's' is string here!
+            main = Main(s, numbers)
+            array = main.create(m.map)  # fill out just created object
+            main.print_it(array)  # print it
+
+    """Check if m.map is an immutable object"""
+    s = '4'
+    numbers = '99999'
+    main2 = Main(s, numbers)
+    array2 = main2.create(m.map)
+    main2.print_it(array2)
 
 
 if __name__ == '__main__':
-    main()
+    app()
