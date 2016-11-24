@@ -1,3 +1,5 @@
+import os
+
 class Map():
     def __init__(self):
         self.map = {1: ['000', '001', '000', '001', '000'],
@@ -60,11 +62,13 @@ class Main():
 
 class Config():
     def __init__(self):
-        self.cfile = "app.conf"
+        self.config_name = 'app.conf'
+        self.application_path = os.path.dirname(os.path.realpath(__file__)) + os.sep
+        self.config_file = os.path.join(self.application_path, self.config_name)
 
     def read(self):
         """Return a list with parameters from config file"""
-        return [line.rstrip('\n') for line in open(self.cfile)]
+        return [line.rstrip('\n') for line in open(self.config_file)]
 
 
 def app():
@@ -73,7 +77,7 @@ def app():
     try:
         config = c.read()
     except:
-        raise IOError("Config file '%s' is absent" % c.cfile)
+        raise IOError("Config file {} is absent".format(c.config_name))
 
     for line in config:  # take each line from config file
         (s, numbers) = line.split()  # get 2 separate parameters, they're global, both
